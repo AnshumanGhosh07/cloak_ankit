@@ -1,0 +1,1523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CLOAK — Anonymous Wellbeing</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f0ede8;
+  --bg2:#eae6e0;
+  --surface:#faf8f5;
+  --surface2:#f3f0ec;
+  --navy:#16202e;
+  --navy2:#1e2d42;
+  --navy3:#253346;
+  --teal:#278c7e;
+  --teal2:#1e6e63;
+  --teal3:#3db5a3;
+  --teal-light:#e5f3f1;
+  --teal-mid:#9fd4cc;
+  --peach:#d9714e;
+  --peach-light:#faeee9;
+  --peach-mid:#f0b49a;
+  --lav:#8b6fbf;
+  --lav-light:#ede8f8;
+  --sage:#5a9e6f;
+  --sage-light:#e8f4ec;
+  --gold:#c49a2a;
+  --gold-light:#fdf5e0;
+  --text:#16202e;
+  --text2:#3a4a5c;
+  --muted:#7a8898;
+  --muted2:#a8b4c0;
+  --border:#ddd8d0;
+  --border2:#e8e4de;
+  --serif:'Fraunces',serif;
+  --sans:'DM Sans',sans-serif;
+  --r-sm:10px;
+  --r:16px;
+  --r-lg:22px;
+  --r-xl:28px;
+  --shadow:0 2px 12px rgba(22,32,46,0.07);
+  --shadow-lg:0 8px 32px rgba(22,32,46,0.12);
+}
+
+html,body{height:100%;overflow:hidden;-webkit-font-smoothing:antialiased}
+body{background:var(--bg);font-family:var(--sans);color:var(--text);display:flex;flex-direction:column}
+button{font-family:var(--sans);cursor:pointer;border:none;outline:none}
+input,textarea{font-family:var(--sans);outline:none;border:none}
+*:focus-visible{outline:2px solid var(--teal);outline-offset:2px;border-radius:4px}
+
+/* ═══════════════════════════
+   VIEWS & TRANSITIONS
+═══════════════════════════ */
+.view{
+  position:absolute;inset:0;display:flex;
+  opacity:0;pointer-events:none;
+  transition:opacity 0.45s cubic-bezier(0.4,0,0.2,1),transform 0.45s cubic-bezier(0.4,0,0.2,1);
+  transform:translateY(16px) scale(0.99);
+}
+.view.active{opacity:1;pointer-events:all;transform:translateY(0) scale(1)}
+.view.out{opacity:0;transform:translateY(-12px) scale(0.99);pointer-events:none}
+
+/* ═══════════════════════════
+   ONBOARDING
+═══════════════════════════ */
+#view-onboard{
+  background:var(--navy);
+  flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;overflow:hidden;
+}
+.ob-bg{
+  position:absolute;inset:0;overflow:hidden;pointer-events:none;
+}
+.ob-orb{
+  position:absolute;border-radius:50%;filter:blur(80px);opacity:0.08;
+  animation:orbFloat 8s ease-in-out infinite;
+}
+.ob-orb1{width:600px;height:600px;background:var(--teal);top:-100px;left:-150px;animation-delay:0s}
+.ob-orb2{width:400px;height:400px;background:var(--peach);bottom:-100px;right:-100px;animation-delay:3s}
+.ob-orb3{width:300px;height:300px;background:var(--lav);top:50%;left:60%;animation-delay:5s}
+@keyframes orbFloat{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(20px,-20px) scale(1.05)}}
+
+.ob-inner{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:0}
+.ob-logo{
+  font-family:var(--serif);font-size:1.05rem;letter-spacing:0.32em;
+  color:rgba(232,244,240,0.5);text-transform:uppercase;margin-bottom:3.5rem;
+  animation:fadeUp 0.6s ease both;
+}
+.ob-chip{
+  display:inline-flex;align-items:center;gap:0.5rem;
+  background:rgba(39,140,126,0.15);border:1px solid rgba(39,140,126,0.3);
+  border-radius:100px;padding:0.45rem 1.1rem;
+  font-size:0.72rem;color:#8fd4cb;letter-spacing:0.1em;text-transform:uppercase;
+  margin-bottom:2.2rem;animation:fadeUp 0.6s 0.1s ease both;
+}
+.ob-chip-pulse{
+  width:6px;height:6px;background:var(--teal3);border-radius:50%;
+  box-shadow:0 0 0 0 rgba(61,181,163,0.4);
+  animation:chipPulse 2s infinite;
+}
+@keyframes chipPulse{0%{box-shadow:0 0 0 0 rgba(61,181,163,0.5)}70%{box-shadow:0 0 0 8px rgba(61,181,163,0)}100%{box-shadow:0 0 0 0 rgba(61,181,163,0)}}
+
+.ob-h{
+  font-family:var(--serif);font-weight:300;
+  font-size:clamp(3rem,5vw,4.8rem);color:#d0e4ef;line-height:1.08;
+  max-width:680px;margin-bottom:1.4rem;letter-spacing:-0.01em;
+  animation:fadeUp 0.6s 0.2s ease both;
+}
+.ob-h em{font-style:italic;color:var(--teal3)}
+.ob-p{
+  font-size:1.05rem;color:rgba(160,185,200,0.7);max-width:420px;
+  line-height:1.75;margin-bottom:3.2rem;font-weight:300;
+  animation:fadeUp 0.6s 0.3s ease both;
+}
+.ob-features{
+  display:flex;gap:0.85rem;margin-bottom:3.2rem;
+  animation:fadeUp 0.6s 0.4s ease both;
+}
+.ob-feat{
+  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);
+  border-radius:var(--r);padding:1.3rem 1.4rem;width:158px;text-align:left;
+  backdrop-filter:blur(10px);transition:border-color 0.25s,background 0.25s;
+}
+.ob-feat:hover{background:rgba(255,255,255,0.07);border-color:rgba(39,140,126,0.3)}
+.of-icon{font-size:1.35rem;margin-bottom:0.65rem}
+.of-title{font-size:0.82rem;font-weight:500;color:#c0d8e8;margin-bottom:0.3rem}
+.of-desc{font-size:0.72rem;color:#3e5470;line-height:1.55}
+.ob-cta{animation:fadeUp 0.6s 0.5s ease both;display:flex;flex-direction:column;align-items:center;gap:1rem}
+.ob-btn{
+  background:var(--teal);color:#fff;font-size:0.92rem;font-weight:500;
+  padding:1rem 3rem;border-radius:100px;letter-spacing:0.02em;
+  transition:opacity 0.2s,transform 0.2s,box-shadow 0.2s;
+  box-shadow:0 4px 24px rgba(39,140,126,0.35);
+}
+.ob-btn:hover{opacity:0.9;transform:translateY(-2px);box-shadow:0 8px 32px rgba(39,140,126,0.45)}
+.ob-trust{font-size:0.72rem;color:rgba(62,84,112,0.9);display:flex;align-items:center;gap:0.45rem}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+/* ═══════════════════════════
+   APP SHELL
+═══════════════════════════ */
+#view-app{flex-direction:row;overflow:hidden}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  width:220px;min-width:220px;height:100vh;
+  background:var(--navy);display:flex;flex-direction:column;
+  padding:0;overflow:hidden;
+  box-shadow:2px 0 16px rgba(0,0,0,0.15);
+  position:relative;z-index:10;
+}
+.sb-top{padding:1.8rem 1.2rem 0}
+.sb-logo{
+  font-family:var(--serif);font-size:1.25rem;letter-spacing:0.22em;
+  color:#dceef5;padding:0 0.4rem;margin-bottom:2.4rem;
+  text-transform:uppercase;font-weight:300;
+}
+.sb-section{
+  font-size:0.6rem;text-transform:uppercase;letter-spacing:0.16em;
+  color:#2a3d52;padding:0 0.4rem;margin:1.4rem 0 0.5rem;font-weight:500;
+}
+.sb-item{
+  display:flex;align-items:center;gap:0.65rem;padding:0.62rem 0.75rem;
+  border-radius:var(--r-sm);font-size:0.82rem;color:#5a7490;cursor:pointer;
+  transition:all 0.18s;margin-bottom:0.08rem;position:relative;
+  letter-spacing:0.01em;
+}
+.sb-item:hover{background:rgba(255,255,255,0.04);color:#9db8cc}
+.sb-item.active{background:rgba(39,140,126,0.16);color:#7dd9cf}
+.sb-item svg{width:16px;height:16px;flex-shrink:0;stroke-width:1.8}
+.sb-item.active svg{opacity:1}
+.sb-item svg{opacity:0.65}
+.sb-item.active svg{opacity:1}
+.sb-badge{
+  margin-left:auto;background:var(--teal);color:#fff;
+  font-size:0.62rem;font-weight:600;padding:0.15rem 0.5rem;
+  border-radius:100px;letter-spacing:0.04em;
+}
+.sb-divider{height:1px;background:rgba(255,255,255,0.04);margin:0.8rem 1.2rem}
+.sb-footer{
+  margin-top:auto;padding:1rem 1.2rem 1.4rem;
+  border-top:1px solid rgba(255,255,255,0.04);
+}
+.sb-session{
+  display:flex;align-items:center;gap:0.7rem;
+  background:rgba(39,140,126,0.1);border:1px solid rgba(39,140,126,0.18);
+  border-radius:var(--r-sm);padding:0.65rem 0.75rem;margin-bottom:0.6rem;
+}
+.sb-session-dot{
+  width:7px;height:7px;border-radius:50%;background:var(--teal3);flex-shrink:0;
+  box-shadow:0 0 0 0 rgba(61,181,163,0.4);animation:chipPulse 2.5s infinite;
+}
+.sb-session-txt p{font-size:0.76rem;color:#7dd9cf;font-weight:500}
+.sb-session-txt span{font-size:0.66rem;color:#2d5a50}
+.sb-shield{
+  display:flex;align-items:center;gap:0.5rem;padding:0.4rem 0.5rem;
+  cursor:pointer;border-radius:8px;transition:background 0.15s;
+}
+.sb-shield:hover{background:rgba(255,255,255,0.03)}
+.sb-shield svg{width:12px;height:12px;color:#2d4060;flex-shrink:0;stroke-width:2}
+.sb-shield span{font-size:0.66rem;color:#2d4060;line-height:1.45}
+
+/* ── MAIN AREA ── */
+.main-area{flex:1;height:100vh;overflow:hidden;display:flex;flex-direction:column}
+
+/* ── TOPBAR ── */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1.5rem 2rem 0;flex-shrink:0;
+  background:transparent;
+}
+.tb-left h1{font-size:1.35rem;font-weight:500;letter-spacing:-0.01em}
+.tb-left p{font-size:0.8rem;color:var(--muted);margin-top:0.15rem}
+.tb-right{display:flex;align-items:center;gap:0.55rem}
+.tb-ghost{
+  height:34px;padding:0 0.9rem;border-radius:var(--r-sm);font-size:0.78rem;font-weight:400;
+  background:transparent;border:1px solid var(--border);color:var(--muted);
+  transition:all 0.15s;cursor:pointer;
+}
+.tb-ghost:hover{background:var(--surface2);color:var(--text2);border-color:var(--border2)}
+.tb-cta{
+  height:34px;padding:0 1.1rem;border-radius:var(--r-sm);font-size:0.78rem;font-weight:500;
+  background:var(--navy);color:#c0daea;cursor:pointer;
+  transition:opacity 0.15s,transform 0.15s;display:flex;align-items:center;gap:0.45rem;
+}
+.tb-cta:hover{opacity:0.88;transform:translateY(-1px)}
+.tb-cta-dot{width:5px;height:5px;background:var(--teal3);border-radius:50%;animation:chipPulse 2s infinite}
+
+/* ── PAGES ── */
+.page{
+  display:none;flex:1;overflow-y:auto;
+  padding:1.4rem 2rem 2.5rem;
+}
+.page.visible{display:block}
+.page::-webkit-scrollbar{width:3px}
+.page::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+/* ── CARDS ── */
+.card{
+  background:var(--surface);border-radius:var(--r-lg);
+  border:1px solid var(--border2);padding:1.4rem 1.5rem;
+  box-shadow:var(--shadow);
+}
+.card-title{font-size:0.88rem;font-weight:500;color:var(--text)}
+.card-sub{font-size:0.75rem;color:var(--muted);margin-top:0.15rem}
+
+/* ═══════════════════════════
+   DASHBOARD
+═══════════════════════════ */
+.dash-grid{display:grid;grid-template-columns:5fr 3fr;gap:1.2rem}
+.dash-col{display:flex;flex-direction:column;gap:1.2rem}
+
+/* MOOD CHECK-IN */
+.mood-emojis{display:flex;gap:0.5rem;margin:0.9rem 0 0.65rem}
+.mood-btn{
+  width:44px;height:44px;border-radius:12px;border:1.5px solid var(--border);
+  background:var(--surface2);font-size:1.3rem;display:flex;align-items:center;
+  justify-content:center;cursor:pointer;transition:all 0.18s;
+}
+.mood-btn:hover{transform:scale(1.12) translateY(-2px);border-color:var(--teal-mid);background:var(--teal-light)}
+.mood-btn.sel{
+  background:var(--teal-light);border-color:var(--teal);
+  transform:scale(1.1) translateY(-2px);
+  box-shadow:0 4px 12px rgba(39,140,126,0.2);
+}
+.mood-mini-chart{display:flex;align-items:flex-end;gap:6px;height:48px;margin-top:0.3rem}
+.m-col{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1}
+.m-bar{width:100%;border-radius:4px 4px 0 0;background:var(--teal-light);transition:height 0.5s cubic-bezier(0.4,0,0.2,1);min-height:4px}
+.m-bar.today{background:var(--teal)}
+.m-day{font-size:0.6rem;color:var(--muted2)}
+.mood-row-wrap{display:flex;gap:1.2rem;align-items:flex-start}
+.mood-streak{
+  flex-shrink:0;width:80px;background:linear-gradient(135deg,var(--teal-light),#eef8f6);
+  border-radius:var(--r);padding:1rem 0.75rem;text-align:center;
+  border:1px solid var(--teal-mid);
+}
+.streak-n{
+  font-family:var(--serif);font-size:2.2rem;color:var(--teal);
+  line-height:1;display:block;font-weight:400;
+}
+.streak-l{font-size:0.66rem;color:var(--teal);opacity:0.7;display:block;margin-top:0.25rem}
+
+/* CHAT PREVIEW */
+.chat-wrap{display:flex;flex-direction:column;height:100%}
+.chat-msgs{display:flex;flex-direction:column;gap:0.7rem;flex:1;margin:0.85rem 0}
+.bub{
+  padding:0.7rem 0.95rem;border-radius:14px;
+  font-size:0.82rem;line-height:1.58;max-width:90%;
+}
+.bub-ai{
+  background:var(--surface2);border:1px solid var(--border2);
+  border-radius:14px 14px 14px 3px;align-self:flex-start;color:var(--text2);
+}
+.bub-user{
+  background:var(--navy);color:#c8daea;
+  border-radius:14px 14px 3px 14px;align-self:flex-end;
+}
+.bub-typing{
+  background:var(--surface2);border:1px solid var(--border2);
+  border-radius:14px 14px 14px 3px;padding:0.7rem 0.95rem;
+  align-self:flex-start;display:none;
+}
+.dots{display:flex;gap:4px;align-items:center;height:14px}
+.dots span{
+  width:5px;height:5px;background:var(--muted2);border-radius:50%;
+  animation:dot 1.2s infinite;
+}
+.dots span:nth-child(2){animation-delay:0.18s}
+.dots span:nth-child(3){animation-delay:0.36s}
+@keyframes dot{0%,60%,100%{transform:translateY(0);opacity:0.35}30%{transform:translateY(-5px);opacity:1}}
+.mini-in-wrap{display:flex;gap:0.45rem;align-items:center;margin-top:auto}
+.mini-in{
+  flex:1;padding:0.6rem 0.9rem;border-radius:100px;
+  border:1.5px solid var(--border);font-size:0.8rem;background:var(--surface2);
+  color:var(--text);transition:border-color 0.2s;
+}
+.mini-in:focus{border-color:var(--teal-mid)}
+.mini-in::placeholder{color:var(--muted2)}
+.mini-send{
+  width:34px;height:34px;border-radius:50%;background:var(--teal);
+  color:#fff;font-size:0.9rem;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  transition:opacity 0.15s,transform 0.15s;
+}
+.mini-send:hover{opacity:0.85;transform:scale(1.06)}
+
+/* QUICK ACCESS */
+.qa-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;margin-top:0.8rem}
+.qa-tile{
+  padding:0.9rem 1rem;border-radius:var(--r);cursor:pointer;
+  transition:opacity 0.15s,transform 0.2s;border:1px solid transparent;
+  display:flex;flex-direction:column;gap:0.3rem;
+}
+.qa-tile:hover{opacity:0.88;transform:translateY(-2px)}
+.qa-e{font-size:1.05rem}
+.qa-l{font-size:0.78rem;font-weight:500}
+.qa-s{font-size:0.68rem;opacity:0.6}
+
+/* CONSULTANT LIST */
+.c-list{display:flex;flex-direction:column;gap:0.55rem;margin-top:0.8rem}
+.c-row{
+  display:flex;align-items:center;gap:0.75rem;padding:0.6rem 0.65rem;
+  border-radius:var(--r-sm);border:1px solid transparent;
+  transition:all 0.15s;cursor:pointer;
+}
+.c-row:hover{background:var(--surface2);border-color:var(--border2)}
+.c-av{
+  width:36px;height:36px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.72rem;font-weight:500;position:relative;letter-spacing:0.03em;
+}
+.c-av-dot{
+  position:absolute;bottom:0px;right:0px;
+  width:9px;height:9px;border-radius:50%;border:2px solid var(--surface);
+}
+.c-info{flex:1;min-width:0}
+.c-name{font-size:0.8rem;font-weight:500}
+.c-spec{font-size:0.7rem;color:var(--muted)}
+.c-st{font-size:0.68rem;padding:0.18rem 0.55rem;border-radius:100px;flex-shrink:0;font-weight:500}
+.st-on{background:var(--sage-light);color:var(--sage)}
+.st-soon{background:var(--peach-light);color:var(--peach)}
+.bk-btn{
+  font-size:0.7rem;padding:0.28rem 0.65rem;border-radius:8px;
+  background:var(--teal-light);color:var(--teal);border:1px solid var(--teal-mid);
+  font-weight:500;transition:all 0.15s;margin-left:0.25rem;
+}
+.bk-btn:hover{background:var(--teal);color:#fff}
+
+/* ═══════════════════════════
+   TRIAGE — FULL SCREEN
+═══════════════════════════ */
+.triage-page{
+  display:none;flex:1;flex-direction:column;height:100%;overflow:hidden;
+}
+.triage-page.visible{display:flex}
+
+.triage-header{
+  padding:1.2rem 2rem;display:flex;align-items:center;gap:0.9rem;
+  flex-shrink:0;border-bottom:1px solid var(--border2);background:var(--surface);
+  box-shadow:0 1px 0 var(--border2);
+}
+.t-back{
+  width:32px;height:32px;border-radius:var(--r-sm);background:var(--surface2);
+  border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--muted);font-size:0.9rem;transition:all 0.15s;flex-shrink:0;
+}
+.t-back:hover{background:var(--border);color:var(--text)}
+.t-title{font-size:0.95rem;font-weight:500;flex:1}
+.t-anon-badge{
+  display:flex;align-items:center;gap:0.45rem;
+  background:rgba(39,140,126,0.09);border:1px solid rgba(39,140,126,0.2);
+  border-radius:100px;padding:0.35rem 0.85rem;
+}
+.t-anon-badge span{font-size:0.72rem;color:var(--teal)}
+.t-priv-btn{
+  display:flex;align-items:center;gap:0.4rem;padding:0.35rem 0.75rem;
+  border-radius:100px;border:1px solid var(--border);cursor:pointer;
+  transition:all 0.15s;background:transparent;font-family:var(--sans);
+}
+.t-priv-btn:hover{background:var(--surface2)}
+.t-priv-btn svg{width:12px;height:12px;color:var(--muted);stroke-width:2}
+.t-priv-btn span{font-size:0.72rem;color:var(--muted)}
+
+/* MESSAGES AREA */
+.triage-msgs{
+  flex:1;overflow-y:auto;padding:2.5rem 8rem;
+  display:flex;flex-direction:column;gap:1.1rem;
+  background:var(--bg);
+}
+.triage-msgs::-webkit-scrollbar{width:2px}
+.triage-msgs::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+.t-msg{
+  max-width:600px;padding:1rem 1.2rem;
+  border-radius:18px;font-size:0.88rem;line-height:1.65;
+  animation:msgIn 0.3s cubic-bezier(0.4,0,0.2,1) both;
+}
+@keyframes msgIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+.t-ai{
+  background:var(--surface);border:1px solid var(--border2);
+  border-radius:18px 18px 18px 4px;align-self:flex-start;
+  box-shadow:var(--shadow);
+}
+.t-ai-lbl{
+  font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;
+  color:var(--muted2);margin-bottom:0.55rem;font-weight:500;
+}
+.t-user{
+  background:var(--navy);color:#c8dff0;
+  border-radius:18px 18px 4px 18px;align-self:flex-end;
+}
+.t-typing{
+  background:var(--surface);border:1px solid var(--border2);
+  border-radius:18px 18px 18px 4px;align-self:flex-start;
+  padding:1rem 1.2rem;display:none;
+  box-shadow:var(--shadow);
+  animation:msgIn 0.3s ease both;
+}
+
+/* ROUTE CARD */
+.t-route{
+  align-self:flex-start;max-width:600px;
+  background:var(--surface);border:1.5px solid var(--teal-mid);
+  border-radius:18px;padding:1.3rem 1.4rem;
+  animation:msgIn 0.35s ease both;
+  box-shadow:0 4px 16px rgba(39,140,126,0.1);
+}
+.t-route-lbl{
+  font-size:0.65rem;color:var(--teal);text-transform:uppercase;
+  letter-spacing:0.1em;margin-bottom:0.8rem;font-weight:600;
+}
+.t-route-opts{display:flex;gap:0.65rem;flex-wrap:wrap}
+.t-route-btn{
+  padding:0.65rem 1.05rem;border-radius:var(--r-sm);
+  font-size:0.8rem;font-weight:500;cursor:pointer;
+  transition:all 0.18s;border:1.5px solid;font-family:var(--sans);
+}
+.t-route-btn:hover{transform:translateY(-2px)}
+
+/* INPUT AREA */
+.triage-input-wrap{
+  padding:1.2rem 8rem;border-top:1px solid var(--border2);
+  display:flex;gap:0.7rem;align-items:flex-end;
+  flex-shrink:0;background:var(--surface);
+}
+.triage-ta{
+  flex:1;padding:0.9rem 1.1rem;border-radius:var(--r);
+  border:1.5px solid var(--border);font-size:0.88rem;color:var(--text);
+  background:var(--surface2);transition:border-color 0.2s;
+  resize:none;max-height:120px;line-height:1.55;
+}
+.triage-ta:focus{border-color:var(--teal-mid)}
+.triage-ta::placeholder{color:var(--muted2)}
+.triage-send-btn{
+  width:42px;height:42px;border-radius:var(--r-sm);background:var(--teal);
+  color:#fff;font-size:1rem;flex-shrink:0;display:flex;align-items:center;
+  justify-content:center;transition:opacity 0.15s,transform 0.15s;
+}
+.triage-send-btn:hover{opacity:0.85;transform:scale(1.05)}
+.triage-send-btn:disabled{opacity:0.45;transform:none;cursor:not-allowed}
+.triage-hint{
+  font-size:0.7rem;color:var(--muted2);text-align:center;
+  padding:0.5rem 8rem;flex-shrink:0;background:var(--surface);
+}
+
+/* ═══════════════════════════
+   CONSULTANTS
+═══════════════════════════ */
+.consult-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:1rem;margin-top:1rem;
+}
+.c-card{
+  background:var(--surface);border:1px solid var(--border2);
+  border-radius:var(--r-lg);padding:1.4rem;
+  box-shadow:var(--shadow);transition:all 0.2s;cursor:default;
+}
+.c-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);border-color:var(--teal-mid)}
+.c-card-av{
+  width:52px;height:52px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.88rem;font-weight:500;position:relative;margin-bottom:1rem;
+}
+.c-card-dot{
+  position:absolute;bottom:1px;right:1px;
+  width:11px;height:11px;border-radius:50%;border:2.5px solid var(--surface);
+}
+.c-card-name{font-size:0.92rem;font-weight:500;margin-bottom:0.2rem}
+.c-card-spec{font-size:0.74rem;color:var(--muted);margin-bottom:0.85rem}
+.c-card-tags{display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:0.9rem}
+.c-tag{font-size:0.68rem;padding:0.2rem 0.6rem;border-radius:100px}
+.c-card-rating{
+  font-size:0.75rem;color:var(--peach);
+  display:flex;align-items:center;justify-content:space-between;margin-bottom:0.9rem;
+}
+.c-card-status{
+  font-size:0.7rem;padding:0.2rem 0.65rem;border-radius:100px;font-weight:500;
+}
+.c-card-book{
+  width:100%;padding:0.68rem;border-radius:var(--r-sm);font-size:0.8rem;font-weight:500;
+  background:var(--navy);color:#c0daea;transition:opacity 0.15s,transform 0.15s;
+}
+.c-card-book:hover{opacity:0.88;transform:translateY(-1px)}
+
+/* ═══════════════════════════
+   CIRCLES
+═══════════════════════════ */
+.circles-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:1rem;margin-top:1rem;
+}
+.ci-card{
+  background:var(--surface);border:1px solid var(--border2);border-radius:var(--r-lg);
+  padding:1.5rem;cursor:pointer;transition:all 0.22s;position:relative;overflow:hidden;
+  box-shadow:var(--shadow);
+}
+.ci-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}
+.ci-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  border-radius:var(--r-lg) var(--r-lg) 0 0;opacity:0;transition:opacity 0.22s;
+}
+.ci-card:hover::before{opacity:1}
+.ci-emoji{font-size:1.75rem;margin-bottom:0.75rem;display:block}
+.ci-name{font-size:0.95rem;font-weight:500;margin-bottom:0.3rem}
+.ci-desc{font-size:0.78rem;color:var(--muted);line-height:1.55;margin-bottom:0.9rem}
+.ci-meta{display:flex;align-items:center;gap:0.45rem;font-size:0.72rem;color:var(--muted);margin-bottom:0.75rem}
+.ci-dot{width:3px;height:3px;background:var(--border);border-radius:50%;flex-shrink:0}
+.ci-tag{font-size:0.68rem;padding:0.2rem 0.65rem;border-radius:100px;font-weight:500;display:inline-block;margin-bottom:0.9rem}
+.ci-join{
+  width:100%;padding:0.65rem;border-radius:var(--r-sm);
+  font-size:0.8rem;font-weight:500;background:var(--navy);color:#c0daea;
+  transition:opacity 0.15s;
+}
+.ci-join:hover:not(:disabled){opacity:0.85}
+.ci-join:disabled{opacity:0.35;cursor:not-allowed}
+
+/* ═══════════════════════════
+   JOURNAL
+═══════════════════════════ */
+.journal-grid{display:grid;grid-template-columns:1fr 2.2fr;gap:1.2rem}
+.prompt-card{
+  background:linear-gradient(145deg,var(--lav-light),#f5f0fb);
+  border:1px solid #ddd0f0;border-radius:var(--r-lg);padding:1.5rem;
+  box-shadow:var(--shadow);
+}
+.prompt-lbl{
+  font-size:0.65rem;text-transform:uppercase;letter-spacing:0.12em;
+  color:var(--lav);margin-bottom:0.8rem;font-weight:600;
+}
+.prompt-q{
+  font-family:var(--serif);font-size:1.2rem;color:#3d2d5c;
+  line-height:1.45;font-style:italic;margin-bottom:1.1rem;font-weight:300;
+}
+.past-entries{display:flex;flex-direction:column;gap:0.5rem;margin-top:0.7rem}
+.entry{
+  padding:0.75rem;border-radius:var(--r-sm);
+  background:rgba(255,255,255,0.55);cursor:pointer;transition:background 0.15s;
+  border:1px solid rgba(255,255,255,0.3);
+}
+.entry:hover{background:rgba(255,255,255,0.85)}
+.entry-date{font-size:0.68rem;color:var(--lav);margin-bottom:0.3rem;opacity:0.8}
+.entry-text{
+  font-size:0.78rem;color:#4a3870;line-height:1.45;
+  overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+}
+.write-col{display:flex;flex-direction:column;gap:0.75rem}
+.journal-ta{
+  width:100%;min-height:210px;padding:1.1rem 1.2rem;
+  border:1.5px solid var(--border);border-radius:var(--r-lg);font-size:0.9rem;
+  color:var(--text);background:var(--surface);resize:none;line-height:1.72;
+  transition:border-color 0.2s;box-shadow:var(--shadow);
+}
+.journal-ta:focus{border-color:var(--lav)}
+.journal-ta::placeholder{color:var(--muted2)}
+.journal-acts{display:flex;gap:0.65rem}
+.j-save{
+  flex:1;padding:0.75rem;border-radius:var(--r-sm);
+  background:var(--lav);color:#fff;font-size:0.85rem;font-weight:500;
+  transition:opacity 0.15s,transform 0.15s;
+}
+.j-save:hover{opacity:0.88;transform:translateY(-1px)}
+.j-clear{
+  padding:0.75rem 1.1rem;border-radius:var(--r-sm);
+  border:1px solid var(--border);background:transparent;
+  font-size:0.85rem;color:var(--muted);transition:all 0.15s;
+}
+.j-clear:hover{background:var(--surface2);color:var(--text2)}
+
+/* ═══════════════════════════
+   MOOD TRACKER
+═══════════════════════════ */
+.mood-grid{display:grid;grid-template-columns:2fr 1fr;gap:1.2rem}
+.mt-bars{display:flex;align-items:flex-end;gap:10px;height:130px;margin:1rem 0 0.5rem}
+.mt-col{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1}
+.mt-bar{width:100%;border-radius:6px 6px 0 0;transition:height 0.5s cubic-bezier(0.4,0,0.2,1);min-height:6px}
+.mt-day{font-size:0.7rem;color:var(--muted2)}
+.mt-emoji{font-size:0.88rem}
+.mood-log-btn{
+  display:flex;align-items:center;gap:0.7rem;padding:0.7rem 0.95rem;
+  border-radius:var(--r-sm);border:1.5px solid var(--border);background:transparent;
+  cursor:pointer;transition:all 0.15s;font-size:0.85rem;color:var(--text);
+  font-family:var(--sans);width:100%;margin-bottom:0.45rem;
+}
+.mood-log-btn:hover{border-color:var(--teal-mid);background:var(--teal-light);color:var(--teal)}
+.mood-log-btn.sel{border-color:var(--teal-mid);background:var(--teal-light);color:var(--teal)}
+
+/* ═══════════════════════════
+   MODALS
+═══════════════════════════ */
+.overlay{
+  position:fixed;inset:0;background:rgba(14,19,30,0.65);
+  display:flex;align-items:center;justify-content:center;z-index:200;
+  opacity:0;pointer-events:none;transition:opacity 0.25s;
+  backdrop-filter:blur(4px);
+}
+.overlay.open{opacity:1;pointer-events:all}
+.modal{
+  background:var(--surface);border-radius:var(--r-xl);
+  border:1px solid var(--border2);padding:2.2rem;
+  width:490px;max-width:92vw;max-height:90vh;overflow-y:auto;
+  transform:translateY(20px) scale(0.96);transition:transform 0.28s cubic-bezier(0.4,0,0.2,1);
+  box-shadow:var(--shadow-lg);
+}
+.overlay.open .modal{transform:translateY(0) scale(1)}
+.modal-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.8rem}
+.modal-title{font-size:1.05rem;font-weight:500}
+.modal-close{
+  width:30px;height:30px;border-radius:8px;background:var(--surface2);
+  border:1px solid var(--border);color:var(--muted);font-size:1rem;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  transition:all 0.15s;
+}
+.modal-close:hover{background:var(--border);color:var(--text)}
+
+/* BOOKING */
+.bk-consultant{
+  display:flex;gap:1rem;align-items:center;
+  margin-bottom:1.6rem;padding-bottom:1.6rem;
+  border-bottom:1px solid var(--border2);
+}
+.bk-av{
+  width:52px;height:52px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.9rem;font-weight:500;
+}
+.bk-name{font-size:0.95rem;font-weight:500;margin-bottom:0.2rem}
+.bk-spec{font-size:0.78rem;color:var(--muted)}
+.bk-rating{font-size:0.75rem;color:var(--peach);margin-top:0.25rem}
+.time-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0.45rem;margin-bottom:1.4rem}
+.time-slot{
+  padding:0.58rem 0;text-align:center;border-radius:var(--r-sm);font-size:0.78rem;
+  border:1.5px solid var(--border);cursor:pointer;transition:all 0.15s;color:var(--muted);
+}
+.time-slot:hover{border-color:var(--teal-mid);color:var(--teal);background:var(--teal-light)}
+.time-slot.sel{background:var(--teal-light);border-color:var(--teal);color:var(--teal);font-weight:500}
+.time-slot.taken{opacity:0.3;pointer-events:none;text-decoration:line-through}
+.bk-note{
+  font-size:0.76rem;color:var(--muted);margin-bottom:1.3rem;
+  background:var(--surface2);padding:0.8rem 0.95rem;border-radius:var(--r-sm);line-height:1.6;
+}
+.bk-confirm{
+  width:100%;padding:0.88rem;border-radius:var(--r-sm);
+  background:var(--teal);color:#fff;font-size:0.88rem;font-weight:500;
+  transition:opacity 0.15s,transform 0.15s;
+}
+.bk-confirm:hover{opacity:0.9;transform:translateY(-1px)}
+
+/* PRIVACY */
+.priv-list{display:flex;flex-direction:column;gap:1rem;margin-bottom:1.6rem}
+.priv-item{display:flex;gap:1rem;align-items:flex-start}
+.priv-icon{
+  width:36px;height:36px;border-radius:var(--r-sm);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:1rem;
+}
+.priv-title{font-size:0.85rem;font-weight:500;margin-bottom:0.25rem}
+.priv-desc{font-size:0.76rem;color:var(--muted);line-height:1.55}
+
+/* JOIN */
+.jm-circle{
+  display:flex;gap:1rem;align-items:center;
+  padding:1rem 1.1rem;background:var(--surface2);
+  border-radius:var(--r);margin-bottom:1.5rem;border:1px solid var(--border2);
+}
+.jm-emoji{font-size:2rem}
+.jm-name{font-size:0.95rem;font-weight:500;margin-bottom:0.15rem}
+.jm-meta{font-size:0.76rem;color:var(--muted)}
+.join-rules{margin-bottom:1.5rem}
+.join-rule{
+  display:flex;gap:0.65rem;padding:0.5rem 0;
+  border-bottom:1px solid var(--border2);font-size:0.8rem;color:var(--text2);line-height:1.5;
+}
+.join-rule:last-child{border:none}
+.join-rule-dot{color:var(--teal);font-size:0.9rem;flex-shrink:0;margin-top:0.05rem}
+.join-cta{
+  width:100%;padding:0.88rem;border-radius:var(--r-sm);
+  background:var(--navy);color:#c0daea;font-size:0.88rem;font-weight:500;
+  transition:opacity 0.15s;
+}
+.join-cta:hover{opacity:0.85}
+
+/* TOAST */
+.toast{
+  position:fixed;bottom:2rem;right:2rem;
+  background:var(--navy);color:#c8daea;
+  padding:0.85rem 1.2rem;border-radius:var(--r);
+  font-size:0.84rem;border:1px solid rgba(255,255,255,0.08);
+  box-shadow:var(--shadow-lg);z-index:300;
+  transform:translateY(20px);opacity:0;
+  transition:all 0.3s cubic-bezier(0.4,0,0.2,1);
+  display:flex;align-items:center;gap:0.6rem;
+}
+.toast.show{transform:translateY(0);opacity:1}
+
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.25}}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ ONBOARDING ═══════════════ -->
+<div class="view active" id="view-onboard">
+  <div class="ob-bg">
+    <div class="ob-orb ob-orb1"></div>
+    <div class="ob-orb ob-orb2"></div>
+    <div class="ob-orb ob-orb3"></div>
+  </div>
+  <div class="ob-inner">
+    <div class="ob-logo">CLOAK</div>
+    <div class="ob-chip"><div class="ob-chip-pulse"></div>Zero identity required</div>
+    <h1 class="ob-h">A safe space that never<br>asks <em>who you are.</em></h1>
+    <p class="ob-p">Mental wellbeing support powered by AI, verified consultants, and anonymous peer circles — all without your name.</p>
+    <div class="ob-features">
+      <div class="ob-feat">
+        <div class="of-icon">🤖</div>
+        <div class="of-title">AI Triage</div>
+        <div class="of-desc">Routed to the right support in under 5 minutes</div>
+      </div>
+      <div class="ob-feat">
+        <div class="of-icon">🌍</div>
+        <div class="of-title">Consultants</div>
+        <div class="of-desc">Verified professionals across 15+ time zones</div>
+      </div>
+      <div class="ob-feat">
+        <div class="of-icon">⬡</div>
+        <div class="of-title">Peer Circles</div>
+        <div class="of-desc">Anonymous groups, facilitated by experts</div>
+      </div>
+    </div>
+    <div class="ob-cta">
+      <button class="ob-btn" onclick="enterApp()">Enter anonymously</button>
+      <div class="ob-trust">🔒 No account &nbsp;·&nbsp; No name &nbsp;·&nbsp; No tracking</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ APP SHELL ═══════════════ -->
+<div class="view" id="view-app">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sb-top">
+      <div class="sb-logo">CLOAK</div>
+      <div class="sb-section">Main</div>
+      <div class="sb-item active" onclick="showPage('dash',this)">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        Dashboard
+      </div>
+      <div class="sb-item" onclick="showTriage()">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        AI Triage
+        <div class="sb-badge">Live</div>
+      </div>
+      <div class="sb-item" onclick="showPage('consults',this)">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        Consultants
+      </div>
+      <div class="sb-item" onclick="showPage('circles',this)">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+        Peer Circles
+      </div>
+      <div class="sb-divider"></div>
+      <div class="sb-section">Reflect</div>
+      <div class="sb-item" onclick="showPage('journal',this)">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        Journal
+      </div>
+      <div class="sb-item" onclick="showPage('mood',this)">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Mood Tracker
+      </div>
+    </div>
+    <div class="sb-footer">
+      <div class="sb-session">
+        <div class="sb-session-dot"></div>
+        <div class="sb-session-txt">
+          <p>Anonymous session</p>
+          <span>No data stored</span>
+        </div>
+      </div>
+      <div class="sb-shield" onclick="openModal('modal-privacy')">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <span>ISO 27001 · BACP Certified · Zero-knowledge</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN AREA -->
+  <div class="main-area">
+    <div class="topbar">
+      <div class="tb-left">
+        <h1 id="page-title">Good morning ☁️</h1>
+        <p id="page-sub">How are you feeling today?</p>
+      </div>
+      <div class="tb-right">
+        <button class="tb-ghost" onclick="openModal('modal-privacy')">🔒 Privacy</button>
+        <button class="tb-cta" onclick="showTriage()">
+          <div class="tb-cta-dot"></div>Talk to AI now
+        </button>
+      </div>
+    </div>
+
+    <!-- ── DASHBOARD ── -->
+    <div class="page visible" id="page-dash">
+      <div class="dash-grid">
+        <div class="dash-col">
+          <!-- MOOD CHECK-IN -->
+          <div class="card">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between">
+              <div>
+                <div class="card-title">Daily check-in</div>
+                <div class="card-sub">How are you feeling right now?</div>
+              </div>
+            </div>
+            <div class="mood-row-wrap">
+              <div style="flex:1">
+                <div class="mood-emojis">
+                  <button class="mood-btn" onclick="pickMood(this,1)" title="Very low">😔</button>
+                  <button class="mood-btn" onclick="pickMood(this,2)" title="Low">😕</button>
+                  <button class="mood-btn sel" onclick="pickMood(this,3)" title="Okay">😐</button>
+                  <button class="mood-btn" onclick="pickMood(this,4)" title="Good">🙂</button>
+                  <button class="mood-btn" onclick="pickMood(this,5)" title="Great">😄</button>
+                </div>
+                <div class="mood-mini-chart" id="mini-chart"></div>
+              </div>
+              <div class="mood-streak">
+                <span class="streak-n">7</span>
+                <span class="streak-l">day streak</span>
+              </div>
+            </div>
+          </div>
+          <!-- AI CHAT PREVIEW -->
+          <div class="card" style="display:flex;flex-direction:column;min-height:260px">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <div class="card-title">AI Support</div>
+              <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.7rem;color:var(--teal);background:var(--teal-light);padding:0.25rem 0.65rem;border-radius:100px;border:1px solid var(--teal-mid)">
+                <div style="width:5px;height:5px;background:var(--teal);border-radius:50%;animation:chipPulse 2s infinite"></div>
+                Anonymous
+              </div>
+            </div>
+            <div class="chat-wrap">
+              <div class="chat-msgs" id="dash-msgs">
+                <div class="bub bub-ai">Hi. What's on your mind today? You don't need to share any personal details — just speak freely.</div>
+                <div class="bub bub-user">I've been feeling really overwhelmed lately with everything piling up at once</div>
+                <div class="bub bub-ai">That sounds exhausting. When everything piles up, it can be hard to know where to even begin. Would you like to talk through what's weighing on you most, or would a 1:1 with a consultant feel more helpful right now?</div>
+              </div>
+              <div class="bub-typing" id="dash-typing"><div class="dots"><span></span><span></span><span></span></div></div>
+              <div class="mini-in-wrap">
+                <input class="mini-in" id="dash-in" placeholder="Reply…"/>
+                <button class="mini-send" onclick="dashSend()">→</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="dash-col">
+          <!-- QUICK ACCESS -->
+          <div class="card">
+            <div class="card-title">Quick access</div>
+            <div class="qa-grid">
+              <div class="qa-tile" style="background:var(--teal-light);border-color:var(--teal-mid)" onclick="showTriage()">
+                <div class="qa-e">🤖</div>
+                <div class="qa-l" style="color:var(--teal)">Talk to AI</div>
+                <div class="qa-s" style="color:var(--teal)">Start now</div>
+              </div>
+              <div class="qa-tile" style="background:var(--peach-light)" onclick="showPage('consults',null)">
+                <div class="qa-e">👤</div>
+                <div class="qa-l" style="color:var(--peach)">Book session</div>
+                <div class="qa-s" style="color:var(--peach)">3 available</div>
+              </div>
+              <div class="qa-tile" style="background:var(--sage-light)" onclick="showPage('circles',null)">
+                <div class="qa-e">⬡</div>
+                <div class="qa-l" style="color:var(--sage)">Join circle</div>
+                <div class="qa-s" style="color:var(--sage)">Starting soon</div>
+              </div>
+              <div class="qa-tile" style="background:var(--lav-light)" onclick="showPage('journal',null)">
+                <div class="qa-e">✍️</div>
+                <div class="qa-l" style="color:var(--lav)">Journal</div>
+                <div class="qa-s" style="color:var(--lav)">Today's prompt</div>
+              </div>
+            </div>
+          </div>
+          <!-- AVAILABLE CONSULTANTS -->
+          <div class="card">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <div class="card-title">Available now</div>
+              <span style="font-size:0.73rem;color:var(--teal);cursor:pointer" onclick="showPage('consults',null)">See all →</span>
+            </div>
+            <div class="c-list">
+              <div class="c-row" onclick="openBooking('Dr S. Reeves','Anxiety · Stress · CBT','SR','teal')">
+                <div class="c-av" style="background:var(--teal-light);color:var(--teal)">SR<div class="c-av-dot" style="background:var(--sage)"></div></div>
+                <div class="c-info"><div class="c-name">Dr S. Reeves</div><div class="c-spec">Anxiety · Stress · CBT</div></div>
+                <div class="c-st st-on">Online</div>
+                <button class="bk-btn" onclick="event.stopPropagation();openBooking('Dr S. Reeves','Anxiety · Stress','SR','teal')">Book</button>
+              </div>
+              <div class="c-row" onclick="openBooking('M. Patel','CBT · Trauma · Burnout','MP','peach')">
+                <div class="c-av" style="background:var(--peach-light);color:var(--peach)">MP<div class="c-av-dot" style="background:var(--sage)"></div></div>
+                <div class="c-info"><div class="c-name">M. Patel</div><div class="c-spec">CBT · Trauma · Burnout</div></div>
+                <div class="c-st st-on">Online</div>
+                <button class="bk-btn" onclick="event.stopPropagation();openBooking('M. Patel','CBT · Trauma','MP','peach')">Book</button>
+              </div>
+              <div class="c-row" onclick="openBooking('J. Kim','Relationships · Loss','JK','lav')">
+                <div class="c-av" style="background:var(--lav-light);color:var(--lav)">JK<div class="c-av-dot" style="background:var(--peach)"></div></div>
+                <div class="c-info"><div class="c-name">J. Kim</div><div class="c-spec">Relationships · Loss</div></div>
+                <div class="c-st st-soon">In 20 min</div>
+                <button class="bk-btn" onclick="event.stopPropagation();openBooking('J. Kim','Relationships · Loss','JK','lav')">Book</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── AI TRIAGE ── -->
+    <div class="triage-page" id="page-triage">
+      <div class="triage-header">
+        <button class="t-back" onclick="hideTriage()" title="Back">←</button>
+        <div class="t-title">AI Triage</div>
+        <div class="t-anon-badge">
+          <div class="ob-chip-pulse" style="width:5px;height:5px;background:var(--teal3)"></div>
+          <span>Anonymous · No data stored</span>
+        </div>
+        <button class="t-priv-btn" onclick="openModal('modal-privacy')">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>How we protect you</span>
+        </button>
+      </div>
+      <div class="triage-msgs" id="triage-msgs">
+        <div class="t-msg t-ai">
+          <div class="t-ai-lbl">CLOAK AI</div>
+          Hi. You don't need to share your name, email, or any identifying information — this is a completely safe, anonymous space.<br><br>What's brought you here today? Just speak freely.
+        </div>
+      </div>
+      <div class="triage-hint">Your messages are not stored or linked to any identity. End the session any time.</div>
+      <div class="triage-input-wrap">
+        <textarea class="triage-ta" id="triage-in" rows="1" placeholder="Type how you're feeling…"></textarea>
+        <button class="triage-send-btn" id="triage-send" onclick="triageSend()">→</button>
+      </div>
+    </div>
+
+    <!-- ── CONSULTANTS ── -->
+    <div class="page" id="page-consults">
+      <div class="card" style="background:var(--teal-light);border-color:var(--teal-mid);display:flex;gap:1rem;align-items:center;padding:1rem 1.5rem;margin-bottom:0">
+        <div style="width:38px;height:38px;background:var(--teal);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.1rem;flex-shrink:0">🌍</div>
+        <div>
+          <div style="font-size:0.88rem;font-weight:500;color:var(--teal)">15+ time zones covered</div>
+          <div style="font-size:0.76rem;color:var(--teal2);margin-top:0.1rem">All consultants are BACP-verified. Sessions are anonymous and encrypted end-to-end.</div>
+        </div>
+      </div>
+      <div class="consult-grid" id="consult-grid"></div>
+    </div>
+
+    <!-- ── CIRCLES ── -->
+    <div class="page" id="page-circles">
+      <div class="card" style="background:var(--sage-light);border-color:#b8dfc4;padding:1rem 1.5rem;margin-bottom:0">
+        <div style="font-size:0.85rem;color:var(--sage);font-weight:500">Anonymous peer groups of 8–12 people, each facilitated by a verified consultant. You choose your name, you stay in control.</div>
+      </div>
+      <div class="circles-grid" id="circles-grid"></div>
+    </div>
+
+    <!-- ── JOURNAL ── -->
+    <div class="page" id="page-journal">
+      <div class="journal-grid">
+        <div>
+          <div class="prompt-card">
+            <div class="prompt-lbl">Today's prompt</div>
+            <div class="prompt-q">"What's one small thing that felt hard today — and what helped, even a little?"</div>
+            <div style="font-size:0.72rem;color:var(--lav);opacity:0.65;margin-top:0.75rem">Your entries are stored only on your device.</div>
+          </div>
+          <div style="margin-top:1rem">
+            <div style="font-size:0.78rem;font-weight:500;color:var(--muted);margin-bottom:0.55rem">Past entries</div>
+            <div class="past-entries">
+              <div class="entry"><div class="entry-date">Yesterday</div><div class="entry-text">Felt really overwhelmed in the afternoon but a short walk helped clear my head a little...</div></div>
+              <div class="entry"><div class="entry-date">2 days ago</div><div class="entry-text">Hard to focus. The meeting went okay but I left feeling unseen. Need to talk to someone...</div></div>
+              <div class="entry"><div class="entry-date">4 days ago</div><div class="entry-text">Better day today. The circle session this morning actually helped more than I expected...</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="write-col">
+          <div class="card" style="flex:1">
+            <div style="font-size:0.85rem;font-weight:500;margin-bottom:0.7rem">Write freely</div>
+            <textarea class="journal-ta" id="journal-ta" placeholder="This space is just for you. No one else can see what you write here…"></textarea>
+          </div>
+          <div class="journal-acts">
+            <button class="j-save" onclick="saveJournal(this)">Save entry</button>
+            <button class="j-clear" onclick="document.getElementById('journal-ta').value=''">Clear</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── MOOD TRACKER ── -->
+    <div class="page" id="page-mood">
+      <div class="mood-grid">
+        <div class="card">
+          <div class="card-title">7-day mood history</div>
+          <div class="mt-bars" id="mood-bars"></div>
+          <div style="display:flex;gap:2rem;margin-top:0.75rem">
+            <div><div style="font-size:0.7rem;color:var(--muted)">Average this week</div><div style="font-size:1.4rem;font-family:var(--serif)">3.4 / 5</div></div>
+            <div><div style="font-size:0.7rem;color:var(--muted)">Best day</div><div style="font-size:1.4rem;font-family:var(--serif)">Thursday 😄</div></div>
+            <div><div style="font-size:0.7rem;color:var(--muted)">Streak</div><div style="font-size:1.4rem;font-family:var(--serif)">7 days 🔥</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title" style="margin-bottom:0.85rem">Log today's mood</div>
+          <div id="mood-log-btns">
+            <button class="mood-log-btn" data-v="1" onclick="logMood(this)"><span style="font-size:1.15rem">😔</span> Very low</button>
+            <button class="mood-log-btn" data-v="2" onclick="logMood(this)"><span style="font-size:1.15rem">😕</span> Low</button>
+            <button class="mood-log-btn sel" data-v="3" onclick="logMood(this)"><span style="font-size:1.15rem">😐</span> Okay</button>
+            <button class="mood-log-btn" data-v="4" onclick="logMood(this)"><span style="font-size:1.15rem">🙂</span> Good</button>
+            <button class="mood-log-btn" data-v="5" onclick="logMood(this)"><span style="font-size:1.15rem">😄</span> Great</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main-area -->
+</div><!-- /view-app -->
+
+<!-- ═══════ BOOKING MODAL ═══════ -->
+<div class="overlay" id="modal-booking" onclick="closeModal('modal-booking')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-top">
+      <div class="modal-title">Book a session</div>
+      <button class="modal-close" onclick="closeModal('modal-booking')">×</button>
+    </div>
+    <div class="bk-consultant">
+      <div class="bk-av" id="bk-av" style="background:var(--teal-light);color:var(--teal)">SR</div>
+      <div>
+        <div class="bk-name" id="bk-name">Dr S. Reeves</div>
+        <div class="bk-spec" id="bk-spec">Anxiety · Stress</div>
+        <div class="bk-rating">★★★★★ 4.9 · 94 sessions</div>
+      </div>
+    </div>
+    <div style="font-size:0.78rem;color:var(--muted);margin-bottom:0.7rem;font-weight:500">Select a time today</div>
+    <div class="time-grid" id="time-grid"></div>
+    <div class="bk-note">🔒 This session is fully anonymous. No name or contact details required. All sessions are encrypted end-to-end.</div>
+    <button class="bk-confirm" onclick="confirmBooking()">Confirm booking · £35</button>
+  </div>
+</div>
+
+<!-- ═══════ JOIN MODAL ═══════ -->
+<div class="overlay" id="modal-join" onclick="closeModal('modal-join')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-top">
+      <div class="modal-title">Join this circle</div>
+      <button class="modal-close" onclick="closeModal('modal-join')">×</button>
+    </div>
+    <div class="jm-circle">
+      <div class="jm-emoji" id="jm-emoji">🌊</div>
+      <div>
+        <div class="jm-name" id="jm-name">Managing anxiety</div>
+        <div class="jm-meta" id="jm-meta">9 members · Starting in 25 min</div>
+      </div>
+    </div>
+    <div style="font-size:0.82rem;font-weight:500;margin-bottom:0.75rem">How circles work</div>
+    <div class="join-rules">
+      <div class="join-rule"><span class="join-rule-dot">·</span>You choose a display name — completely anonymous, anything you like</div>
+      <div class="join-rule"><span class="join-rule-dot">·</span>Video and audio off by default — you control what you share</div>
+      <div class="join-rule"><span class="join-rule-dot">·</span>A verified BACP consultant facilitates every session</div>
+      <div class="join-rule"><span class="join-rule-dot">·</span>What's shared in the circle stays in the circle</div>
+    </div>
+    <div class="bk-note">🔒 No recordings. No real names. Your identity is fully protected throughout.</div>
+    <button class="join-cta" onclick="closeModal('modal-join');showToast('✓ Joined! You\'ll receive your anonymous access link.')">Join anonymously →</button>
+  </div>
+</div>
+
+<!-- ═══════ PRIVACY MODAL ═══════ -->
+<div class="overlay" id="modal-privacy" onclick="closeModal('modal-privacy')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-top">
+      <div class="modal-title">How we protect you</div>
+      <button class="modal-close" onclick="closeModal('modal-privacy')">×</button>
+    </div>
+    <div class="priv-list">
+      <div class="priv-item">
+        <div class="priv-icon" style="background:var(--teal-light)">🔒</div>
+        <div><div class="priv-title">Zero-knowledge architecture</div><div class="priv-desc">We never ask for your name, email, or any identifying information. No account required — ever.</div></div>
+      </div>
+      <div class="priv-item">
+        <div class="priv-icon" style="background:var(--peach-light)">🛡️</div>
+        <div><div class="priv-title">ISO 27001 certified</div><div class="priv-desc">Enterprise-grade data protection and sovereign routing. Your conversations are encrypted end-to-end.</div></div>
+      </div>
+      <div class="priv-item">
+        <div class="priv-icon" style="background:var(--lav-light)">✅</div>
+        <div><div class="priv-title">BACP-verified consultants</div><div class="priv-desc">Every consultant is certified through direct partnerships with the British Association for Counselling and Psychotherapy.</div></div>
+      </div>
+      <div class="priv-item">
+        <div class="priv-icon" style="background:var(--sage-light)">🧠</div>
+        <div><div class="priv-title">Safety filtering & crisis protocols</div><div class="priv-desc">Automated content moderation and crisis intervention protocols keep every space safe and supported.</div></div>
+      </div>
+    </div>
+    <button class="bk-confirm" style="background:var(--navy)" onclick="closeModal('modal-privacy')">Got it</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═══════════════════════════
+   ENTER APP
+═══════════════════════════ */
+function enterApp(){
+  const ob=document.getElementById('view-onboard');
+  ob.classList.add('out');
+  setTimeout(()=>{
+    ob.classList.remove('active','out');
+    const app=document.getElementById('view-app');
+    app.classList.add('active');
+    buildConsultGrid();
+    buildCirclesGrid();
+    buildMoodBars();
+    buildMiniChart();
+  },300);
+}
+
+/* ═══════════════════════════
+   NAVIGATION
+═══════════════════════════ */
+const pageTitles={
+  dash:['Good morning ☁️','How are you feeling today?'],
+  consults:['Consultants','Verified professionals, available now'],
+  circles:['Peer Circles','Anonymous groups, facilitated by experts'],
+  journal:['Journal','Your private reflection space'],
+  mood:['Mood Tracker','Track your emotional patterns'],
+};
+
+function showPage(id,el){
+  // Hide triage
+  const tp=document.getElementById('page-triage');
+  tp.classList.remove('visible');tp.style.display='none';
+  // Hide all pages
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('visible'));
+  // Show target
+  const pg=document.getElementById('page-'+id);
+  if(pg)pg.classList.add('visible');
+  // Update sidebar
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+  if(el)el.classList.add('active');
+  // Update header
+  const [t,s]=pageTitles[id]||['CLOAK',''];
+  document.getElementById('page-title').textContent=t;
+  document.getElementById('page-sub').textContent=s;
+}
+
+function showTriage(){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('visible'));
+  const tp=document.getElementById('page-triage');
+  tp.style.display='flex';
+  requestAnimationFrame(()=>tp.classList.add('visible'));
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+  document.querySelectorAll('.sb-item')[1].classList.add('active');
+  document.getElementById('page-title').textContent='AI Triage';
+  document.getElementById('page-sub').textContent='Anonymous · Powered by Claude AI';
+}
+
+function hideTriage(){
+  document.getElementById('page-triage').classList.remove('visible');
+  document.getElementById('page-triage').style.display='none';
+  showPage('dash',document.querySelector('.sb-item'));
+}
+
+/* ═══════════════════════════
+   MOOD
+═══════════════════════════ */
+const moodData=[2,4,3,5,3,4,3];
+const moodEmoji=['','😔','😕','😐','🙂','😄'];
+const days=['M','T','W','T','F','S','S'];
+const moodColors=['','#f0c0c0','#f5dea0','#b8d4e8','#a0d0c8','#b0d8b8'];
+
+function buildMiniChart(){
+  const c=document.getElementById('mini-chart');if(!c)return;c.innerHTML='';
+  moodData.forEach((v,i)=>{
+    const col=document.createElement('div');col.className='m-col';
+    const bar=document.createElement('div');
+    bar.className='m-bar'+(i===6?' today':'');
+    bar.style.height=(v/5*40+4)+'px';
+    const lbl=document.createElement('div');lbl.className='m-day';lbl.textContent=days[i];
+    col.append(bar,lbl);c.appendChild(col);
+  });
+}
+
+function buildMoodBars(){
+  const c=document.getElementById('mood-bars');if(!c)return;c.innerHTML='';
+  moodData.forEach((v,i)=>{
+    const col=document.createElement('div');col.className='mt-col';
+    const emoji=document.createElement('div');emoji.className='mt-emoji';emoji.textContent=moodEmoji[v];
+    const bar=document.createElement('div');bar.className='mt-bar';
+    bar.style.height=(v/5*110)+'px';
+    bar.style.background=i===6?'var(--teal)':moodColors[v];
+    const day=document.createElement('div');day.className='mt-day';day.textContent=days[i];
+    col.append(bar,day);c.appendChild(col);
+  });
+}
+
+function pickMood(btn,v){
+  document.querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  moodData[6]=v;buildMiniChart();buildMoodBars();
+  showToast('Mood logged ✓');
+}
+
+function logMood(btn){
+  document.querySelectorAll('.mood-log-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  moodData[6]=parseInt(btn.dataset.v);
+  buildMiniChart();buildMoodBars();
+  showToast('Mood logged ✓');
+}
+
+/* ═══════════════════════════
+   DASH CHAT (uses Claude API)
+═══════════════════════════ */
+let dashHistory=[
+  {role:'assistant',content:"Hi. What's on your mind today? You don't need to share any personal details — just speak freely."},
+  {role:'user',content:"I've been feeling really overwhelmed lately with everything piling up at once"},
+  {role:'assistant',content:"That sounds exhausting. When everything piles up, it can be hard to know where to even begin. Would you like to talk through what's weighing on you most, or would a 1:1 with a consultant feel more helpful right now?"}
+];
+
+async function dashSend(){
+  const inp=document.getElementById('dash-in');
+  const msgs=document.getElementById('dash-msgs');
+  const t=inp.value.trim();if(!t)return;
+  inp.value='';
+  // User bubble
+  const u=document.createElement('div');u.className='bub bub-user';u.textContent=t;
+  msgs.appendChild(u);scroll(msgs);
+  // Typing
+  const typing=document.getElementById('dash-typing');typing.style.display='block';scroll(msgs);
+  dashHistory.push({role:'user',content:t});
+  // Call Claude
+  try{
+    const reply=await callClaude(dashHistory,'dashboard');
+    dashHistory.push({role:'assistant',content:reply});
+    typing.style.display='none';
+    const a=document.createElement('div');a.className='bub bub-ai';a.textContent=reply;
+    msgs.appendChild(a);scroll(msgs);
+  }catch(e){
+    typing.style.display='none';
+    const a=document.createElement('div');a.className='bub bub-ai';
+    a.textContent="I'm here with you. Would you like to continue talking, or would a session with a consultant feel helpful right now?";
+    msgs.appendChild(a);scroll(msgs);
+  }
+}
+
+/* ═══════════════════════════
+   TRIAGE CHAT (uses Claude API)
+═══════════════════════════ */
+let triageHistory=[];
+let triageRouteShown=false;
+let triageMsgCount=0;
+
+async function triageSend(){
+  const inp=document.getElementById('triage-in');
+  const msgs=document.getElementById('triage-msgs');
+  const sendBtn=document.getElementById('triage-send');
+  const t=inp.value.trim();if(!t)return;
+  inp.value='';
+  sendBtn.disabled=true;
+
+  // User msg
+  const u=document.createElement('div');u.className='t-msg t-user';u.textContent=t;
+  msgs.appendChild(u);scroll(msgs);
+
+  // Typing indicator
+  const typing=document.createElement('div');typing.className='t-typing';
+  typing.innerHTML='<div class="dots"><span></span><span></span><span></span></div>';
+  typing.style.display='block';
+  msgs.appendChild(typing);scroll(msgs);
+
+  triageHistory.push({role:'user',content:t});
+  triageMsgCount++;
+
+  try{
+    const reply=await callClaude(triageHistory,'triage',triageMsgCount);
+    triageHistory.push({role:'assistant',content:reply});
+    typing.remove();
+
+    const a=document.createElement('div');a.className='t-msg t-ai';
+    a.innerHTML=`<div class="t-ai-lbl">CLOAK AI</div>${escHtml(reply)}`;
+    msgs.appendChild(a);
+
+    // After 3 exchanges, show routing options
+    if(triageMsgCount>=3&&!triageRouteShown){
+      triageRouteShown=true;
+      setTimeout(()=>{
+        const r=document.createElement('div');r.className='t-route';
+        r.innerHTML=`<div class="t-route-lbl">Based on our conversation, here are some options for you</div>
+          <div class="t-route-opts">
+            <button class="t-route-btn" style="background:var(--teal-light);color:var(--teal);border-color:var(--teal-mid)" onclick="openBooking('Dr S. Reeves','Anxiety · Stress','SR','teal');hideTriage()">Book a consultant →</button>
+            <button class="t-route-btn" style="background:var(--sage-light);color:var(--sage);border-color:#b8dfc4" onclick="showPage('circles',null);hideTriage()">Join a peer circle →</button>
+            <button class="t-route-btn" style="background:var(--surface2);color:var(--muted);border-color:var(--border)">Keep talking here</button>
+          </div>`;
+        msgs.appendChild(r);scroll(msgs);
+      },600);
+    }
+    scroll(msgs);
+  }catch(e){
+    typing.remove();
+    const a=document.createElement('div');a.className='t-msg t-ai';
+    a.innerHTML=`<div class="t-ai-lbl">CLOAK AI</div>I'm here with you. Take your time — there's no pressure. What feels most important to share right now?`;
+    msgs.appendChild(a);scroll(msgs);
+  }
+  sendBtn.disabled=false;
+}
+
+/* ═══════════════════════════
+   CLAUDE API CALL
+═══════════════════════════ */
+async function callClaude(history,mode,msgCount=0){
+  const systemPrompts={
+    dashboard:`You are a compassionate, trauma-informed AI wellbeing companion for a platform called CLOAK. CLOAK helps people access anonymous mental health support. You speak warmly, without clinical jargon, like a trusted friend who genuinely cares. Keep responses to 2-3 sentences max. You never ask for identifying information. You validate feelings, gently explore what's happening, and occasionally suggest whether speaking with a consultant or joining a peer circle might help. Never give medical advice.`,
+    triage:`You are CLOAK's AI triage assistant — a compassionate, anonymous mental health first-responder. Your job is to gently understand what someone is going through and help them find the right kind of support (AI chat, a 1:1 consultant, or a peer circle). Speak warmly and without clinical jargon. Keep responses to 3-4 sentences max. Validate feelings, ask one thoughtful follow-up question at a time. Never ask for identifying information. Never give medical advice or diagnoses. After 3 exchanges, you'll offer routing options — until then, focus on understanding and being present.`
+  };
+
+  const response=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      model:'claude-sonnet-4-20250514',
+      max_tokens:1000,
+      system:systemPrompts[mode]||systemPrompts.triage,
+      messages:history
+    })
+  });
+  const data=await response.json();
+  const text=data.content?.map(b=>b.type==='text'?b.text:'').join('').trim();
+  if(!text)throw new Error('Empty response');
+  return text;
+}
+
+function escHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+}
+function scroll(el){el.scrollTop=el.scrollHeight}
+
+/* ═══════════════════════════
+   CONSULT GRID
+═══════════════════════════ */
+const CONSULTANTS=[
+  {i:'SR',name:'Dr S. Reeves',spec:'Anxiety · Stress · CBT',r:'4.9',s:94,status:'Online',bg:'var(--teal-light)',col:'var(--teal)',dot:'var(--sage)'},
+  {i:'MP',name:'M. Patel',spec:'CBT · Trauma · Burnout',r:'4.8',s:112,status:'Online',bg:'var(--peach-light)',col:'var(--peach)',dot:'var(--sage)'},
+  {i:'JK',name:'J. Kim',spec:'Relationships · Loss',r:'4.9',s:78,status:'In 20 min',bg:'var(--lav-light)',col:'var(--lav)',dot:'var(--peach)'},
+  {i:'TA',name:'T. Adeyemi',spec:'Grief · Depression',r:'5.0',s:61,status:'Online',bg:'var(--sage-light)',col:'var(--sage)',dot:'var(--sage)'},
+  {i:'RB',name:'R. Baptiste',spec:'Identity · Self-esteem',r:'4.7',s:88,status:'In 1 hr',bg:'var(--peach-light)',col:'var(--peach)',dot:'var(--peach)'},
+  {i:'NL',name:'N. Larsson',spec:'Mindfulness · Stress',r:'4.8',s:103,status:'Online',bg:'var(--teal-light)',col:'var(--teal)',dot:'var(--sage)'},
+];
+function buildConsultGrid(){
+  const g=document.getElementById('consult-grid');if(!g)return;g.innerHTML='';
+  CONSULTANTS.forEach(c=>{
+    const card=document.createElement('div');card.className='c-card';
+    const tags=c.spec.split('·').map(t=>`<span class="c-tag" style="background:${c.bg};color:${c.col}">${t.trim()}</span>`).join('');
+    const stCl=c.status==='Online'?'st-on':'st-soon';
+    card.innerHTML=`
+      <div class="c-card-av" style="background:${c.bg};color:${c.col}">
+        ${c.i}<div class="c-card-dot" style="background:${c.dot}"></div>
+      </div>
+      <div class="c-card-name">${c.name}</div>
+      <div class="c-card-spec">${c.spec}</div>
+      <div class="c-card-tags">${tags}</div>
+      <div class="c-card-rating">
+        <span>★ ${c.r} · ${c.s} sessions</span>
+        <span class="c-card-status c-st ${stCl}">${c.status}</span>
+      </div>
+      <button class="c-card-book" onclick="openBooking('${c.name}','${c.spec}','${c.i}','${c.col}')">Book session · £35</button>`;
+    g.appendChild(card);
+  });
+}
+
+/* ═══════════════════════════
+   CIRCLES GRID
+═══════════════════════════ */
+const CIRCLES=[
+  {e:'🌊',name:'Managing anxiety',desc:'A safe space to share what anxiety feels like day-to-day and find strategies that actually help.',m:9,t:'Starting in 25 min',tag:'Open',tb:'var(--teal-light)',tc:'var(--teal)',top:'var(--teal)'},
+  {e:'🌱',name:'Work & burnout',desc:'For anyone feeling crushed by work pressure. Talk openly without judgement from peers who get it.',m:11,t:'2:00 PM today',tag:'2 spots',tb:'var(--sage-light)',tc:'var(--sage)',top:'var(--sage)'},
+  {e:'🌙',name:'Sleep & rest',desc:'Struggling to switch off? This group explores what gets in the way of proper rest and recovery.',m:8,t:'7:00 PM today',tag:'Open',tb:'var(--lav-light)',tc:'var(--lav)',top:'var(--lav)'},
+  {e:'💛',name:'Low mood',desc:'For days when getting out of bed feels like a mountain. No pressure — just presence and care.',m:10,t:'Tomorrow 10 AM',tag:'Open',tb:'var(--gold-light)',tc:'var(--gold)',top:'var(--gold)'},
+  {e:'🤝',name:'Relationship struggles',desc:'Navigating difficult dynamics with partners, family, or friends. Share and be heard.',m:7,t:'Tomorrow 2 PM',tag:'Open',tb:'var(--peach-light)',tc:'var(--peach)',top:'var(--peach)'},
+  {e:'🧠',name:'Self-esteem & identity',desc:'Exploring who you are, what you value, and how to stop being so hard on yourself.',m:12,t:'Fri 6:00 PM',tag:'Full',tb:'var(--surface2)',tc:'var(--muted2)',top:'var(--muted2)'},
+];
+function buildCirclesGrid(){
+  const g=document.getElementById('circles-grid');if(!g)return;g.innerHTML='';
+  CIRCLES.forEach(c=>{
+    const card=document.createElement('div');card.className='ci-card';
+    const full=c.tag==='Full';
+    card.style.cssText+=`--ci-top:${c.top}`;
+    card.innerHTML=`
+      <style>.ci-card:nth-child(${CIRCLES.indexOf(c)+1})::before{background:${c.top}}</style>
+      <span class="ci-emoji">${c.e}</span>
+      <div class="ci-name">${c.name}</div>
+      <div class="ci-desc">${c.desc}</div>
+      <div class="ci-meta"><span>${c.m} members</span><div class="ci-dot"></div><span>${c.t}</span></div>
+      <span class="ci-tag" style="background:${c.tb};color:${c.tc}">${c.tag}</span>
+      <button class="ci-join" ${full?'disabled':''} onclick="openJoin('${c.e}','${c.name}','${c.m} members · ${c.t}')">
+        ${full?'Circle full':'Join anonymously →'}
+      </button>`;
+    g.appendChild(card);
+  });
+}
+
+/* ═══════════════════════════
+   MODALS
+═══════════════════════════ */
+const times=['9:00 AM','9:30 AM','10:00 AM','10:30 AM','11:00 AM','11:30 AM','2:00 PM','2:30 PM'];
+const takenSlots=[1,4];
+let selTime=null;
+
+function openBooking(name,spec,init,col){
+  document.getElementById('bk-name').textContent=name;
+  document.getElementById('bk-spec').textContent=spec;
+  const av=document.getElementById('bk-av');
+  av.textContent=init;
+  const bg=col.includes('teal')?'var(--teal-light)':col.includes('peach')?'var(--peach-light)':col.includes('lav')?'var(--lav-light)':'var(--sage-light)';
+  av.style.background=bg;av.style.color=col;
+  const tg=document.getElementById('time-grid');tg.innerHTML='';selTime=null;
+  times.forEach((t,i)=>{
+    const s=document.createElement('div');
+    s.className='time-slot'+(takenSlots.includes(i)?' taken':'');
+    s.textContent=t;
+    if(!takenSlots.includes(i))s.onclick=()=>{
+      document.querySelectorAll('.time-slot').forEach(x=>x.classList.remove('sel'));
+      s.classList.add('sel');selTime=t;
+    };
+    tg.appendChild(s);
+  });
+  openModal('modal-booking');
+}
+
+function confirmBooking(){
+  if(!selTime){showToast('Please select a time slot');return;}
+  closeModal('modal-booking');
+  showToast('✓ Session at '+selTime+' confirmed — fully anonymous');
+}
+
+function openJoin(emoji,name,meta){
+  document.getElementById('jm-emoji').textContent=emoji;
+  document.getElementById('jm-name').textContent=name;
+  document.getElementById('jm-meta').textContent=meta+' · Facilitated by a BACP consultant';
+  openModal('modal-join');
+}
+
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+
+/* ═══════════════════════════
+   JOURNAL
+═══════════════════════════ */
+function saveJournal(btn){
+  const ta=document.getElementById('journal-ta');
+  if(!ta.value.trim()){showToast('Write something first ✏️');return;}
+  btn.textContent='Saved ✓';
+  setTimeout(()=>btn.textContent='Save entry',2500);
+  showToast('Entry saved to your device');
+}
+
+/* ═══════════════════════════
+   TOAST
+═══════════════════════════ */
+let toastTimer=null;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+/* ═══════════════════════════
+   KEYBOARD SHORTCUTS
+═══════════════════════════ */
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'){
+    if(e.target.id==='dash-in'){e.preventDefault();dashSend();}
+    if(e.target.id==='triage-in'&&!e.shiftKey){e.preventDefault();triageSend();}
+  }
+  if(e.key==='Escape'){
+    document.querySelectorAll('.overlay.open').forEach(o=>o.classList.remove('open'));
+  }
+});
+</script>
+</body>
+</html>
